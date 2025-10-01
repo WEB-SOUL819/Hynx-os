@@ -1,0 +1,248 @@
+# HYNX Minimalist ZSH Configuration
+# Clean, fast, distraction-free shell configuration
+# Optimized for Termux with minimal resource usage
+
+# History settings
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
+
+# ZSH options
+setopt HIST_IGNORE_DUPS      # Don't record duplicates
+setopt HIST_IGNORE_SPACE     # Don't record commands starting with space
+setopt AUTO_CD               # cd by typing directory name
+setopt CORRECT               # Spell correction
+setopt NO_BEEP               # No annoying beeps
+setopt INTERACTIVE_COMMENTS  # Allow comments in interactive shell
+
+# Load colors
+autoload -U colors && colors
+
+# Minimal HYNX prompt
+# Shows: current_directory $
+PROMPT='%{$fg[white]%}%~ %{$fg[white]%}$ %{$reset_color%}'
+
+# Right prompt with minimal info (optional)
+# RPROMPT='%{$fg[gray]%}%*%{$reset_color%}'
+
+# HYNX Aliases
+alias ll='ls -la'
+alias la='ls -A' 
+alias l='ls -CF'
+alias cls='clear'
+alias c='clear'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Termux specific aliases
+alias update='pkg update && pkg upgrade'
+alias install='pkg install'
+alias search='pkg search'
+alias info='pkg show'
+alias files='pkg files'
+alias list='pkg list-installed'
+
+# Git aliases (if git is installed)
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline'
+
+# System aliases
+alias df='df -h'
+alias du='du -sh'
+alias free='free -h'
+alias ps='ps aux'
+alias top='top -d 1'
+
+# HYNX Theme Functions
+hynx() {
+    case "$1" in
+        "status")
+            echo -e "\033[1;37m╔═══════════════════════════════╗\033[0m"
+            echo -e "\033[1;37m║        HYNX STATUS            ║\033[0m"
+            echo -e "\033[1;37m╚═══════════════════════════════╝\033[0m"
+            echo ""
+            echo -e "\033[0;37mTheme:\033[0m HYNX Minimalist"
+            echo -e "\033[0;37mVersion:\033[0m 1.0.0"
+            echo -e "\033[0;37mActive:\033[0m Yes"
+            echo -e "\033[0;37mFont:\033[0m Doom Style"
+            echo -e "\033[0;37mColors:\033[0m Monochromatic"
+            echo -e "\033[0;37mShell:\033[0m $(basename $SHELL)"
+            echo ""
+            ;;
+        "menu")
+            hynx_menu
+            ;;
+        "info")
+            hynx_info
+            ;;
+        "colors")
+            hynx_colors
+            ;;
+        "update")
+            echo -e "\033[0;36m[INFO]\033[0m Checking for HYNX updates..."
+            if [[ -d ~/.hynx/.git ]]; then
+                cd ~/.hynx && git pull origin main
+                echo -e "\033[0;32m[✓]\033[0m HYNX updated successfully"
+            else
+                echo -e "\033[0;33m[!]\033[0m Git repository not found"
+            fi
+            ;;
+        "reset")
+            echo -e "\033[0;36m[INFO]\033[0m Resetting HYNX configuration..."
+            source ~/.zshrc
+            echo -e "\033[0;32m[✓]\033[0m HYNX reset complete"
+            ;;
+        "help"|*)
+            echo -e "\033[1;37m╔═══════════════════════════════╗\033[0m"
+            echo -e "\033[1;37m║         HYNX HELP             ║\033[0m"
+            echo -e "\033[1;37m╚═══════════════════════════════╝\033[0m"
+            echo ""
+            echo -e "\033[0;37mCommands:\033[0m"
+            echo "  hynx status     - Show theme status"
+            echo "  hynx menu       - Interactive menu"
+            echo "  hynx info       - System information"
+            echo "  hynx colors     - Show color palette"
+            echo "  hynx update     - Update theme"
+            echo "  hynx reset      - Reset configuration"
+            echo "  hynx help       - Show this help"
+            echo ""
+            echo -e "\033[0;37mAliases:\033[0m"
+            echo "  ll, la, l       - List files"
+            echo "  c, cls          - Clear screen"
+            echo "  .., ..., ....   - Navigate up"
+            echo "  update          - Update packages"
+            echo "  gs, ga, gc      - Git shortcuts"
+            echo ""
+            ;;
+    esac
+}
+
+# Interactive menu
+hynx_menu() {
+    clear
+    echo -e "\033[1;37m╔═══════════════════════════════╗\033[0m"
+    echo -e "\033[1;37m║         HYNX MENU             ║\033[0m"
+    echo -e "\033[1;37m╚═══════════════════════════════╝\033[0m"
+    echo ""
+    echo -e "\033[0;37m[1]\033[0m System Info"
+    echo -e "\033[0;37m[2]\033[0m File Manager"
+    echo -e "\033[0;37m[3]\033[0m Package Manager" 
+    echo -e "\033[0;37m[4]\033[0m Process Monitor"
+    echo -e "\033[0;37m[5]\033[0m Theme Status"
+    echo -e "\033[0;37m[6]\033[0m Color Palette"
+    echo -e "\033[0;37m[0]\033[0m Exit"
+    echo ""
+    read -p "Select option: " choice
+    
+    case $choice in
+        1) hynx_info ;;
+        2) ls -la && echo "" && read -p "Press Enter to continue..." ;;
+        3) pkg list-installed | head -20 && echo "" && read -p "Press Enter to continue..." ;;
+        4) ps aux | head -15 && echo "" && read -p "Press Enter to continue..." ;;
+        5) hynx status && echo "" && read -p "Press Enter to continue..." ;;
+        6) hynx colors && echo "" && read -p "Press Enter to continue..." ;;
+        0) echo -e "\033[0;37mGoodbye!\033[0m" ;;
+        *) echo -e "\033[0;31mInvalid option\033[0m" ;;
+    esac
+}
+
+# System information
+hynx_info() {
+    clear
+    echo -e "\033[1;37m╔═══════════════════════════════╗\033[0m"
+    echo -e "\033[1;37m║        SYSTEM INFO            ║\033[0m"
+    echo -e "\033[1;37m╚═══════════════════════════════╝\033[0m"
+    echo ""
+    echo -e "\033[0;37mTheme:\033[0m HYNX Minimalist"
+    echo -e "\033[0;37mVersion:\033[0m 1.0.0"
+    echo -e "\033[0;37mShell:\033[0m $(basename $SHELL)"
+    echo -e "\033[0;37mTermux:\033[0m $(pkg show termux-app 2>/dev/null | grep Version | cut -d: -f2 | xargs || echo "Unknown")"
+    echo -e "\033[0;37mUptime:\033[0m $(uptime -p 2>/dev/null || echo "System active")"
+    echo -e "\033[0;37mUser:\033[0m $(whoami)"
+    echo -e "\033[0;37mHome:\033[0m $HOME"
+    echo -e "\033[0;37mPath:\033[0m $(pwd)"
+    echo ""
+    
+    # Display system resources if available
+    if command -v free >/dev/null 2>&1; then
+        mem_info=$(free -h | awk 'NR==2{printf "%s used / %s total", $3, $2}')
+        echo -e "\033[0;37mMemory:\033[0m ${mem_info}"
+    fi
+    
+    if command -v df >/dev/null 2>&1; then
+        disk_info=$(df -h $HOME | awk 'NR==2{printf "%s used / %s total (%s)", $3, $2, $5}')
+        echo -e "\033[0;37mDisk:\033[0m ${disk_info}"
+    fi
+    
+    echo ""
+}
+
+# Color palette display
+hynx_colors() {
+    clear
+    echo -e "\033[1;37m╔═══════════════════════════════╗\033[0m"
+    echo -e "\033[1;37m║       HYNX COLORS             ║\033[0m"
+    echo -e "\033[1;37m╚═══════════════════════════════╝\033[0m"
+    echo ""
+    echo -e "\033[0;37mBase Colors:\033[0m"
+    echo -e "  Background: \033[40m  #000000  \033[0m"
+    echo -e "  Foreground: \033[47;30m  #ffffff  \033[0m"
+    echo -e "  Cursor:     \033[47;30m  #ffffff  \033[0m"
+    echo ""
+    echo -e "\033[0;37mStandard Palette:\033[0m"
+    echo -e "  Black:   \033[30m███\033[0m #000000    Bright Black:  \033[90m███\033[0m #404040"
+    echo -e "  Red:     \033[31m███\033[0m #ff4444    Bright Red:    \033[91m███\033[0m #ff6666"
+    echo -e "  Green:   \033[32m███\033[0m #44ff44    Bright Green:  \033[92m███\033[0m #66ff66"
+    echo -e "  Yellow:  \033[33m███\033[0m #ffff44    Bright Yellow: \033[93m███\033[0m #ffff66"
+    echo -e "  Blue:    \033[34m███\033[0m #4444ff    Bright Blue:   \033[94m███\033[0m #6666ff"
+    echo -e "  Magenta: \033[35m███\033[0m #ff44ff    Bright Magenta:\033[95m███\033[0m #ff66ff"
+    echo -e "  Cyan:    \033[36m███\033[0m #44ffff    Bright Cyan:   \033[96m███\033[0m #66ffff"
+    echo -e "  White:   \033[37m███\033[0m #ffffff    Bright White:  \033[97m███\033[0m #ffffff"
+    echo ""
+}
+
+# Welcome message
+hynx_welcome() {
+    clear
+    echo -e "\033[1;37m"
+    if command -v figlet >/dev/null 2>&1; then
+        figlet -w 50 "HYNX" 2>/dev/null
+    else
+        echo "██╗  ██╗██╗   ██╗███╗   ██╗██╗  ██╗"
+        echo "██║  ██║╚██╗ ██╔╝████╗  ██║╚██╗██╔╝"
+        echo "███████║ ╚████╔╝ ██╔██╗ ██║ ╚███╔╝ "
+        echo "██╔══██║  ╚██╔╝  ██║╚██╗██║ ██╔██╗ "
+        echo "██║  ██║   ██║   ██║ ╚████║██╔╝ ██╗"
+        echo "╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝╚═╝  ╚═╝"
+    fi
+    echo -e "\033[0m"
+    echo -e "\033[0;37mMinimalist Termux Theme\033[0m"
+    echo -e "\033[0;37mType 'hynx help' for commands\033[0m"
+    echo ""
+}
+
+# Performance optimizations
+# Disable completion system if not needed
+# zstyle ':completion:*' use-cache off
+
+# Key bindings (minimal set)
+bindkey '^[[A' history-beginning-search-backward  # Up arrow
+bindkey '^[[B' history-beginning-search-forward   # Down arrow
+bindkey '^[[H' beginning-of-line                  # Home
+bindkey '^[[F' end-of-line                        # End
+bindkey '^[[3~' delete-char                       # Delete
+
+# Auto-run welcome on new session (once per session)
+if [[ -z "$HYNX_LOADED" ]] && [[ $- == *i* ]]; then
+    export HYNX_LOADED=1
+    hynx_welcome
+fi
+
+# Add ~/bin to PATH if it exists and not already in PATH
+if [[ -d "$HOME/bin" ]] && [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+    export PATH="$HOME/bin:$PATH"
+fi
